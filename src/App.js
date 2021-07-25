@@ -43,6 +43,7 @@ const App = () => {
     try {
       const data = await axios.get(
         "http://makeup-api.herokuapp.com/api/v1/products.json?brand=maybelline"
+        // "https://management.azure.com/{scope}/providers/Microsoft.CostManagement/query?api-version=2019-11-01"
       );
       console.log(data.data);
       setProduct(data.data);
@@ -65,11 +66,17 @@ const App = () => {
         }}
       />
       <input
-        type="textr"
+        type="text"
         placeholder="Price Here"
         onChange={(e) => {
           setPrice(e.target.value);
         }}
+      />
+      <input
+        type="date"
+        placeholder="date"
+        
+      
       />
       
 
@@ -99,6 +106,8 @@ const App = () => {
           </TableHead>
           <TableBody>
             {product
+                .sort((a, b) => parseInt(a.price)> parseInt(b.price)? 1 : -1)
+
               .filter((item) => {
                 if (search == ""&&price=="") {
                   return item;
