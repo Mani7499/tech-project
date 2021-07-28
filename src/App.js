@@ -1,4 +1,3 @@
-import React, {Component} from "react";
 import "./App.css";
 import axios from "axios";
 import { useEffect, useState } from "react";
@@ -10,7 +9,14 @@ import TableContainer from "@material-ui/core/TableContainer";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import Paper from "@material-ui/core/Paper";
-import { array } from "yargs";
+import { Component } from "react";
+import { display } from "@material-ui/system";
+import {v4 as uuidv4} from "uuid";
+import { Button } from '@material-ui/core';
+import TextField from '@material-ui/core/TextField';
+import Input from '@material-ui/core/Input';
+
+
 
 const StyledTableCell = withStyles((theme) => ({
   head: {
@@ -36,125 +42,127 @@ const useStyles = makeStyles({
   },
 });
 
-export class App extends Component{
-  constructor(props)
-  {
+export class App extends Component {
+  constructor(props) {
     super(props);
-    this.state={
-      subscriptionID:'',
-      date:'',
-      resourceGroup:''
-    }
+
+       this.state = {
+      subscriptionID: "",
+      date: "",
+      resourceGroup: "",
+      tablerows:undefined,
+      tablecolumns:undefined
+    };
   }
-  changeHandler = (e) =>{
-    this.setState({[e.target.name]:e.target.value})
-  }
-// handleSubsId=(event)=>{
-//   this.setState({
-//     subsId:event.target.value
-//   });
-// }  
-// handleDate=(event)=>{
-//   this.setState({
-//     date:event.target.value
-//   });
-// }  
-// handleresourseGroup=(event)=>{
-//   this.setState({
-//     resourseGroup:event.target.value
-//   });
-// }  
-handleSubmit=(event)=>{
   
-//  alert(this.state.subsId + this.state.resourseGroup )
-event.preventDefault()  
-console.log(this.state)
-let a={...this.state}
-a.resourceGroup=[a.resourceGroup]
-axios.post("http://localhost:3001/getCost",a)
-.then(response =>{
-  console.log(response.data.properties.rows);
-}
+  changeHandler = (e) => {
+    this.setState({ [e.target.name]: e.target.value });
+  };
 
-)
-} 
+  handleSubmit = (event) => {
+    //  alert(this.state.subsId + this.state.resourseGroup )
+    event.preventDefault();
 
-  render()
+    let a = { ...this.state };
+    if (a.resourceGroup !== "") {
+      a.resourceGroup = [a.resourceGroup];
+      console.log(a);
+    } else {
+      a.resourceGroup = [];
+    }
+    axios.post("http://localhost:3001/getCost", a).then((response) => {
+      console.log(response.data);
+      this.setState({ tablerows: response.data.properties.rows,
+        tablecolumns: response.data.properties.columns
+       });
+      //this.setState({ tablecolumns: response.data.properties.columns });
+      console.log(this.state.tablecolumns)
+      console.log(this.state.tablerows);
+    });
+  };
+
+  render() 
   {
-  return (
+
+    return (
     
-    <div className="App">
-      
-      <h1>Tech Project</h1>
-      <form onSubmit={this.handleSubmit}>
-      <input
-        type="text"
-        placeholder="Subscription ID"
-        value={this.state.subscriptionID}
-        name="subscriptionID"
-        onChange={this.changeHandler}
-      />
-      <input
-        
-        type="text"
-        placeholder="resourceGroup"
-        value={this.state.resourceGroup}
-        name="resourceGroup"
-        onChange={this.changeHandler}
-      />
-      <input
-        type="month"
-        placeholder="date"
-        value={this.state.date}
-        name="date"
-        onChange={this.changeHandler}
-      
+     
+      <div className="App">
+        <div style={{ 
+      backgroundImage: "url(/bg1.jpg)"
+    }}>
 
-      />
-      <button>Submit</button>
-      </form>
+        <h1>Tech Project</h1>
+        {/* <form onSubmit={this.handleSubmit}> */}
+        <div align='center'>
+        <label>Subscription ID: </label>
+        &nbsp;
+        <Input inputProps={{ 'aria-label': 'description' }} placeholder="Subscription ID" value={this.state.subscriptionID}
+            required="true"
+            name="subscriptionID"
+            onChange={this.changeHandler}/>
+          </div>
+          <br></br>
+          <div align='center'>
+        <label>Resource Group:</label>
+        &nbsp;
+        <Input inputProps={{ 'aria-label': 'description' }} placeholder="Resource Group " value={this.state.resourceGroup}
+            name="resourceGroup"
+            
+            onChange={this.changeHandler}/>
 
-{/* 
-      <TableContainer component={Paper}>
-        <Table className={classes.table} aria-label="customized table">
-          <TableHead>
-            <TableRow>
-              <StyledTableCell>Product Name</StyledTableCell>
-              <StyledTableCell align="right">Product Price</StyledTableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {product
-                .sort((a, b) => parseInt(a.price)> parseInt(b.price)? 1 : -1)
+          </div>
+          <br></br>
+          <div align='center'>
+        <label>Date:</label>
+        &nbsp;
+        <Input inputProps={{ 'aria-label': 'description' }} placeholder="Date" value={this.state.date}
+           type="month"
+           name="date"
+            onChange={this.changeHandler}/>
 
-              .filter((item) => {
-                if (search == ""&&price=="") {
-                  return item;
-                } else if (
-                  (item.name.toLowerCase().includes(search.toLowerCase()))&&(parseInt(item.price)>parseInt(price))
-                )
-                 {
-                  return item;
-                }
-              })
-              .map((item) => {
-                return (
-                  <StyledTableRow key={item.id}>
-                    <StyledTableCell component="th" scope="row">
-                      {item.name}
-                    </StyledTableCell>
-                    <StyledTableCell align="right">
-                      {item.price}
-                    </StyledTableCell>
-                  </StyledTableRow>
-                );
-              })}
-          </TableBody>
-        </Table>
-      </TableContainer>  */}
-    </div>
-  );
-            }
-};
+          </div>
+                    <br></br>
+          <Button variant="contained" color="primary" onClick={ this.handleSubmit }>
+Search</Button>
+          <br></br>
+        {/* </form> */}
+
+        {this.state.tablerows&& (
+          <TableContainer component={Paper}>
+            <Table aria-label="customized table">
+              <TableHead >
+                <TableRow>
+                  <StyledTableCell >{this.state.tablecolumns[1].name}</StyledTableCell>
+                  <StyledTableCell >
+                    {this.state.tablecolumns[0].name}
+                  </StyledTableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {this.state.tablerows.map((item) => {
+                  return (
+                    <StyledTableRow key={uuidv4()}>
+                      <StyledTableCell component="th" scope="row">
+                        {
+                      this.state.tablecolumns[1].name=="UsageDate"?item[1].toString().substr(0,4)+'-'+item[1].toString().substr(4,2)+'-'+item[1].toString().substr(6,2):item[1]
+                      
+                        }
+                      </StyledTableCell>
+                      <StyledTableCell>
+                        {item[0].toFixed(2)}
+                      </StyledTableCell>
+                    </StyledTableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
+      </div>
+      </div>
+    );
+  }
+}
 
 export default App;
